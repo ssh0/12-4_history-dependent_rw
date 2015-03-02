@@ -12,7 +12,8 @@ class HistoryDependentRW():
     def __init__(self, alpha=0.75, l=(1, 1), nwalkers=1000, x0=0):
         """ Initialize the values.
 
-        alpha    : probability that a particle moves the same direction of the before one
+        alpha    : probability that a particle moves the same direction of the
+                   before one
         l        : step length
         nwalkers : number of trials
         x0       : initial position
@@ -29,8 +30,8 @@ class HistoryDependentRW():
         """
         x = np.zeros([self.nwalkers, max(N)], 'i')
         x_direction = np.zeros([self.nwalkers, max(N)], 'i')
+        # generate random number in [0,1)
         p = np.random.random([self.nwalkers, max(N) - 1])
-                             # generate random number in [0,1)
         alpha = self.alpha
         l = self.l
         x0 = self.x0
@@ -57,20 +58,19 @@ class HistoryDependentRW():
 
         You can call the results by "self.N", "self.x_ave", and "self.x_2_ave"
         """
-        self.x_ave = np.sum(
-            self.x, axis=0, dtype=np.float32) / self.nwalkers * 1.
-        self.x_2_ave = np.sum(
-            self.x ** 2, axis=0, dtype=np.float32) / self.nwalkers * 1.
-        self.variance_x = self.x_2_ave - self.x_ave ** 2
+        self.x_ave = np.average(self.x, axis=0)
+        self.x_2_ave = np.average(self.x * self.x, axis=0)
+        self.variance_x = self.x_2_ave - self.x_ave * self.x_ave
 
     def show(self):
         """ Show the graph.
         """
         fig = plt.figure('random walk', figsize=(8, 8))
 
-        x_ave = [self.x_ave[nvalue - 1] for nvalue in self.N]
-        x_2_ave = [self.x_2_ave[nvalue - 1] for nvalue in self.N]
-        variance_x = [self.variance_x[nvalue - 1] for nvalue in self.N]
+        N = np.array(self.N) - 1
+        x_ave = self.x_ave[N]
+        x_2_ave = self.x_2_ave[N]
+        variance_x = self.variance_x[N]
 
         ax1 = fig.add_subplot(311)
         ax1.plot(self.N, x_ave)
